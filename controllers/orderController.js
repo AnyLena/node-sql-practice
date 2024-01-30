@@ -22,3 +22,16 @@ export const getOrder = async (req, res) => {
     res.sendStatus(500);
   }
 };
+
+export const postOrder = async (req, res) => {
+  try {
+    const { price, date, user_id } = req.body;
+    const { rows } = await pool.query(
+      "INSERT INTO orders (price,date,user_id) VALUES ($1, $2, $3) RETURNING *",
+      [price, date, user_id]
+    );
+    res.send(rows[0]);
+  } catch (error) {
+    res.sendStatus(500);
+  }
+};
