@@ -23,6 +23,20 @@ export const getUser = async (req, res) => {
   }
 };
 
+export const getUserOrders = async (req, res) => {
+    const { id } = req.params;
+    try {
+      const { rows } = await pool.query("SELECT * FROM orders JOIN users ON orders.user_id = users.id WHERE orders.user_id=$1", [id]);
+      if (rows.length === 0) {
+        res.sendStatus(404);
+      } else {
+        res.json(rows);
+      }
+    } catch (error) {
+      res.sendStatus(500);
+    }
+  };
+
 export const postUser = async (req, res) => {
   try {
     const { first_name, last_name, age, active } = req.body;
