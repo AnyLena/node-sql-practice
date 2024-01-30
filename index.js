@@ -1,5 +1,7 @@
-import express from "express";
+import 'dotenv/config'
+import express from 'express';
 import userRouter from "./routes/userRoutes.js";
+
 
 const app = express();
 const port = 8000;
