@@ -30,7 +30,21 @@ export const postUser = async (req, res) => {
       "INSERT INTO users (first_name, last_name, age, active) VALUES ($1, $2, $3, $4) RETURNING *",
       [first_name, last_name, age, active]
     );
-    res.send(rows[0]);
+    res.status(201).json(rows[0]);
+  } catch (error) {
+    res.sendStatus(500);
+  }
+};
+
+export const putUser = async (req, res) => {
+  try {
+    const { age } = req.body;
+    const { id } = req.params;
+    const { rows } = await pool.query(
+      "UPDATE users SET age=$2 WHERE id=$1 RETURNING *",
+      [id, age]
+    );
+    res.status(201).json(rows[0]);
   } catch (error) {
     res.sendStatus(500);
   }
