@@ -30,8 +30,22 @@ export const postOrder = async (req, res) => {
       "INSERT INTO orders (price,date,user_id) VALUES ($1, $2, $3) RETURNING *",
       [price, date, user_id]
     );
-    res.send(rows[0]);
+    res.status(201).json(rows[0]);
   } catch (error) {
     res.sendStatus(500);
   }
 };
+
+export const putOrder = async (req, res) => {
+    try {
+      const { user_id } = req.body;
+      const { id } = req.params;
+      const { rows } = await pool.query(
+        "UPDATE orders SET user_id=$2 WHERE id=$1 RETURNING *",
+        [id, user_id]
+      );
+      res.status(201).json(rows[0]);
+    } catch (error) {
+      res.sendStatus(500);
+    }
+  };
