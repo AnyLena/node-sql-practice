@@ -13,6 +13,18 @@ export const userValidationUpdate = [
   body("age").optional().isInt({ min: 18 }),
 ];
 
+export const checkUser = async (req,res,next) => {
+  const { id } = req.params;
+  const userExist = await pool.query(
+    "SELECT * FROM orders WHERE user_id = $1;",
+    [id]
+  );
+  if (userExist.rows.length === 0) {
+    res.status(404).send('User not found');
+  }
+  next()
+} 
+
 export const getUsers = async (req, res) => {
   try {
     const { rows } = await pool.query("SELECT * FROM users");
@@ -77,16 +89,6 @@ export const putUser = async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
-    }
-
-    // CHECKING IF USER EXISTS
-
-    const userExist = await pool.query(
-      "SELECT * FROM orders WHERE user_id = $1;",
-      [id]
-    );
-    if (userExist.rows.length === 0) {
-      res.sendStatus(404);
     }
 
     // UPDATING USER DATA PARTIAL
