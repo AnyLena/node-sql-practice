@@ -7,6 +7,12 @@ export const userValidation = [
   body("age").isInt({ min: 18 }),
 ];
 
+export const userValidationUpdate = [
+  body("first_name").isString(),
+  body("last_name").isString(),
+  body("age").optional().isInt({ min: 18 }),
+];
+
 export const getUsers = async (req, res) => {
   try {
     const { rows } = await pool.query("SELECT * FROM users");
