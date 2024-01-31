@@ -7,7 +7,7 @@ userRouter.get('/', getUsers)
 userRouter.get('/:id', getUser)
 userRouter.get('/:id/orders', getUserOrders)
 userRouter.post('/', userValidation, postUser)
-userRouter.put('/:id', userValidation, putUser)
+userRouter.put('/:id', putUser)
 userRouter.put('/:id/check-inactive', putInactive)
 userRouter.delete('/:id', deleteUser)
 
