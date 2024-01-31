@@ -16,11 +16,11 @@ export const userValidationUpdate = [
 export const checkUser = async (req,res,next) => {
   const { id } = req.params;
   const userExist = await pool.query(
-    "SELECT * FROM orders WHERE user_id = $1;",
+    "SELECT * FROM users WHERE id = $1;",
     [id]
   );
   if (userExist.rows.length === 0) {
-    res.status(404).send('User not found');
+    return res.status(404).send('User not found');
   }
   next()
 } 
