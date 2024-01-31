@@ -72,10 +72,43 @@ export const putUser = async (req, res) => {
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
     }
-    const { first_name, last_name, age, active } = req.body;
+
+    // CHECKING IF USER EXISTS
+
+    const userExist = await pool.query(
+      "SELECT * FROM orders WHERE user_id = $1;",
+      [id]
+    );
+    if (userExist.rows.length === 0) {
+      res.sendStatus(404);
+    }
+
+    // UPDATING USER DATA PARTIAL
+
+    const { first_name, last_name, age } = req.body;
+    const userData = {
+      first_name: first_name,
+      last_name: last_name,
+      age: age,
+    };
+
+    const queryUpdate = [];
+    const values = [id];
+
+    let i = 2;
+    for (let key in userData) {
+      if (userData[key]) {
+        let value = key + "=$" + i;
+        queryUpdate.push(value);
+        values.push(userData[key]);
+        i++;
+      }
+    }
+
+    console.log(queryUpdate);
+
     const query =
-      "UPDATE users SET age=$2, last_name = $3, first_name = $4, active =$5 WHERE id=$1 RETURNING *";
-    const values = [id, age, last_name, first_name, active];
+      "UPDATE users SET " + queryUpdate.join(",") + " WHERE id=$1 RETURNING *";
     const { rows } = await pool.query(query, values);
     res.json(rows[0]);
   } catch (error) {
