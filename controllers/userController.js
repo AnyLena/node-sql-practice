@@ -2,9 +2,9 @@ import { pool } from "../db/pool.js";
 import { body, validationResult } from "express-validator";
 
 export const userValidation = [
-  body('first_name').isString().notEmpty(),
-  body('last_name').isString().notEmpty(),
-  body('age').isInt({ min: 18 }),
+  body("first_name").isString().notEmpty(),
+  body("last_name").isString().notEmpty(),
+  body("age").isInt({ min: 18 }),
 ];
 
 export const getUsers = async (req, res) => {
@@ -78,6 +78,31 @@ export const putUser = async (req, res) => {
     const values = [id, age, last_name, first_name, active];
     const { rows } = await pool.query(query, values);
     res.json(rows[0]);
+  } catch (error) {
+    res.sendStatus(500);
+  }
+};
+
+export const putInactive = async (req, res) => {
+  const { id } = req.params;
+  try {
+    const { rows } = await pool.query(
+      "SELECT * FROM orders WHERE user_id = $1;",
+      [id]
+    );
+    if (rows.length === 0) {
+      const result = await pool.query(
+        "UPDATE users SET active=false WHERE id=$1 RETURNING *",
+        [id]
+      );
+      res.json(result.rows[0]);
+    } else {
+      const result = await pool.query(
+        "UPDATE users SET active=true WHERE id=$1 RETURNING *",
+        [id]
+      );
+      res.json(result.rows[0]);
+    }
   } catch (error) {
     res.sendStatus(500);
   }
