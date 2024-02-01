@@ -1,51 +1,27 @@
 import { pool } from "../db/pool.js";
-import { body, validationResult } from "express-validator";
-
-export const userValidation = [
-  body("first_name").isString().notEmpty(),
-  body("last_name").isString().notEmpty(),
-  body("age").isInt({ min: 18 }),
-];
-
-export const userValidationUpdate = [
-  body("first_name").isString(),
-  body("last_name").isString(),
-  body("age").optional().isInt({ min: 18 }),
-];
-
-export const checkUser = async (req,res,next) => {
-  const { id } = req.params;
-  const userExist = await pool.query(
-    "SELECT * FROM users WHERE id = $1;",
-    [id]
-  );
-  if (userExist.rows.length === 0) {
-    return res.status(404).send('User not found');
-  }
-  next()
-} 
+import { validationResult } from "express-validator";
 
 export const getUsers = async (req, res) => {
   try {
     const { rows } = await pool.query("SELECT * FROM users");
     res.json(rows);
   } catch (error) {
-    res.sendStatus(500);
+    res.status(500).json({ errors: errors.array() });
   }
 };
 
 export const getUser = async (req, res) => {
-  const { id } = req.params;
-  try {
-    const { rows } = await pool.query("SELECT * FROM users WHERE id=$1", [id]);
-    if (rows.length === 0) {
-      res.sendStatus(404);
-    } else {
-      res.json(rows[0]);
-    }
-  } catch (error) {
-    res.sendStatus(500);
-  }
+  // const { id } = req.params;
+  // try {
+  //   const { rows } = await pool.query("SELECT * FROM users WHERE id=$1", [id]);
+  //   res.json(rows[0]);
+  // } catch (error) {
+  //   res.status(500).json({ error });
+  // }
+  
+  // We can omit all this and simply go: 
+
+  res.json(req.user)
 };
 
 export const getUserOrders = async (req, res) => {
@@ -55,13 +31,9 @@ export const getUserOrders = async (req, res) => {
       "SELECT * FROM orders JOIN users ON orders.user_id = users.id WHERE orders.user_id=$1",
       [id]
     );
-    if (rows.length === 0) {
-      res.sendStatus(404);
-    } else {
-      res.json(rows);
-    }
+    res.json(rows);
   } catch (error) {
-    res.sendStatus(500);
+    res.status(500).json({ error });
   }
 };
 
